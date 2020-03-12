@@ -2,11 +2,14 @@ const canvas = document.querySelector("canvas");
 const ctx = canvas.getContext("2d");
 
 const resolution = 10;
-canvas.width = 700;
-canvas.height = 700;
+canvas.width = resolution * 70;
+canvas.height = resolution * 70;
 
 const COLS = canvas.width / resolution;
 const ROWS = canvas.height / resolution;
+
+let anim;
+let stopped = false;
 
 function buildGrid() {
   return new Array(COLS)
@@ -17,11 +20,32 @@ function buildGrid() {
 }
 
 let grid = buildGrid();
-requestAnimationFrame(update);
-function update() {
-  grid = nextGen(grid);
+anim = requestAnimationFrame(update);
+
+function restart() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  grid = buildGrid();
   render(grid);
   requestAnimationFrame(update);
+}
+
+function stop() {
+  stopped = !stopped;
+  if (stopped) {
+    cancelAnimationFrame(anim);
+    document.getElementById("stop").innerHTML = "Start";
+  } else {
+    requestAnimationFrame(anim);
+    document.getElementById("stop").innerHTML = "Stop";
+  }
+}
+
+function update() {
+  setTimeout(function() {
+    grid = nextGen(grid);
+    render(grid);
+    anim = requestAnimationFrame(update);
+  }, 1000 / 20);
 }
 
 function nextGen(grid) {
